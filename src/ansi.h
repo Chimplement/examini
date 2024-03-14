@@ -3,7 +3,13 @@
 
 #define ESC "\x1b"
 
+#define BOLD ESC"[1m"
+#define RESET_BOLD ESC"[22m"
+
 #define UNDERLINE ESC"[4m"
 #define RESET_UNDERLINE ESC"[24m"
+
+#define RED ESC"[31m"
+#define WHITE ESC"[37m"
 
 #endif
