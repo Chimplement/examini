@@ -10,6 +10,8 @@
 #define RESET_UNDERLINE ESC"[24m"
 
 #define RED ESC"[31m"
+#define BLUE ESC"[34m"
+#define CYAN ESC"[36m"
 #define WHITE ESC"[37m"
 
 #endif
