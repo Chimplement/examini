@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
 
 	struct user_regs_struct	regs;
 	// long					data;
+	bool					bold = false;
 	while (true)
 	{
 		if (ptrace(PTRACE_SINGLESTEP, tracee_pid, 0, 0) == -1)
@@ -62,12 +63,21 @@ int main(int argc, char* argv[])
 		// write(1, "stack top: ", 11);
 		// write(1, &data, 8);
 		// write(1, "\n", 1);
-		printf(BOLD" -- STEP: --\n"RESET_BOLD);
-		printf(CYAN"rax: %llx\n"WHITE, regs.rax);
-		printf(BLUE"rdi: %llx\n"WHITE, regs.rdi);
-		printf(CYAN"rsi: %llx\n"WHITE, regs.rsi);
-		printf(BLUE"rdx: %llx\n"WHITE, regs.rdx);
-		printf(CYAN"rcx: %llx\n"WHITE, regs.rcx);
+		// printf(BOLD" -- STEP: --\n"RESET_BOLD);
+		if (1)
+		{
+			if (bold)
+				printf(BOLD);
+			printf("rax: %-16llx\t", regs.rax);
+			printf("rdi: %-16llx\t", regs.rdi);
+			printf("rsi: %-16llx\t", regs.rsi);
+			printf("rdx: %-16llx\t", regs.rdx);
+			printf("rcx: %-16llx\t", regs.rcx);
+			if (bold)
+				printf(RESET_BOLD);
+			printf("\n");
+			bold = !bold;
+		}
 	}
 	if (ptrace(PTRACE_DETACH, tracee_pid, 0, 0) == -1)
 		exit_error(errno);
