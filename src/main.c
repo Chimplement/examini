@@ -57,19 +57,13 @@ int main(int argc, char* argv[], char* envp[])
 
 	if (ptrace(PTRACE_ATTACH, tracee_pid, 0, 0) == -1)
 		exit_error(errno);
-
-	if (waitpid(tracee_pid, NULL, 0) == -1)
-		exit_error(errno);
-
+	
 	struct user_regs_struct			regs;
 	long							ip_long;
 	ZyanU8							ip_buffer[sizeof(long)];
 	ZydisDisassembledInstruction	instruction; 
 	while (true)
 	{
-		if (ptrace(PTRACE_SINGLESTEP, tracee_pid, 0, 0) == -1)
-			exit_error(errno);
-
 		if (waitpid(tracee_pid, NULL, 0) == -1)
 			break;
 
@@ -85,8 +79,11 @@ int main(int argc, char* argv[], char* envp[])
 		if (ZYAN_SUCCESS(ZydisDisassembleIntel(ZYDIS_MACHINE_MODE_LONG_64, 0, 
 											ip_buffer, sizeof(ip_buffer), &instruction)))
 		{
-			printf("%s\n", instruction.text); 
+			printf("%s\n", instruction.text);
 		}
+
+		if (ptrace(PTRACE_SINGLESTEP, tracee_pid, 0, 0) == -1)
+			exit_error(errno);
 	}
 	(void)ptrace(PTRACE_DETACH, tracee_pid, 0, 0);
 	return (0);
