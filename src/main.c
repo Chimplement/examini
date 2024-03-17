@@ -11,6 +11,8 @@
 #include <sys/wait.h>
 #include <sys/user.h>
 
+#include "Zydis/Disassembler.h"
+
 #include "ansi.h"
 
 void help(char* program_name)
@@ -43,10 +45,12 @@ int main(int argc, char* argv[])
 	if (waitpid(tracee_pid, NULL, 0) == -1)
 		exit_error(errno);
 
-	struct user_regs_struct	old_regs;
-	struct user_regs_struct	regs;
-	// long					data;
-	bool					bold = false;
+	// struct user_regs_struct		old_regs;
+	struct user_regs_struct			regs;
+	// bool							bold = false;
+	long							ip_long;
+	ZyanU8							ip_buffer[sizeof(long)];
+	ZydisDisassembledInstruction	instruction; 
 	while (true)
 	{
 		if (ptrace(PTRACE_SINGLESTEP, tracee_pid, 0, 0) == -1)
@@ -65,21 +69,33 @@ int main(int argc, char* argv[])
 		// write(1, &data, 8);
 		// write(1, "\n", 1);
 		// printf(BOLD" -- STEP: --\n"RESET_BOLD);
-		if (memcmp(&regs, &old_regs, sizeof(regs)))
+		errno = 0;
+		ip_long = ptrace(PTRACE_PEEKTEXT, tracee_pid, regs.rip, 0);
+		if (errno != 0)
+			break;
+		memcpy(ip_buffer, &ip_long, sizeof(long));
+		
+		
+		if (ZYAN_SUCCESS(ZydisDisassembleIntel(ZYDIS_MACHINE_MODE_LONG_64, 0, 
+											ip_buffer, sizeof(ip_buffer), &instruction)))
 		{
-			if (bold)
-				printf(BOLD);
-			printf("rax: %-16llx\t", regs.rax);
-			printf("rdi: %-16llx\t", regs.rdi);
-			printf("rsi: %-16llx\t", regs.rsi);
-			printf("rdx: %-16llx\t", regs.rdx);
-			printf("rcx: %-16llx\t", regs.rcx);
-			if (bold)
-				printf(RESET_BOLD);
-			printf("\n");
-			bold = !bold;
+			printf("%s\n", instruction.text); 
 		}
-		old_regs = regs;
+		// if (memcmp(&regs, &old_regs, sizeof(regs)))
+		// {
+		// 	if (bold)
+		// 		printf(BOLD);
+		// 	printf("rax: %-16llx\t", regs.rax);
+		// 	printf("rdi: %-16llx\t", regs.rdi);
+		// 	printf("rsi: %-16llx\t", regs.rsi);
+		// 	printf("rdx: %-16llx\t", regs.rdx);
+		// 	printf("rcx: %-16llx\t", regs.rcx);
+		// 	if (bold)
+		// 		printf(RESET_BOLD);
+		// 	printf("\n");
+		// 	bold = !bold;
+		// }
+		// old_regs = regs;
 	}
 	if (ptrace(PTRACE_DETACH, tracee_pid, 0, 0) == -1)
 		exit_error(errno);
