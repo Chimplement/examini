@@ -11,11 +11,11 @@ OBJ		= $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
 
 ZYDIS_DIR			= zydis
 ZYDIS				= $(ZYDIS_DIR)/build/libZydis.a
-ZYDIS_INCLUDE_PATH	= $(ZYDIS_DIR)/include
+ZYDIS_INCLUDE_PATHS	= -I$(ZYDIS_DIR)/include -I$(ZYDIS_DIR)/dependencies/zycore/include
 
 # compiler options
 CC		= cc
-CFLAGS	= -Wall -Wextra -Werror -Wpedantic -I$(SRC_DIR) -I$(ZYDIS_INCLUDE_PATH)
+CFLAGS	= -Wall -Wextra -Werror -Wpedantic -I$(SRC_DIR) $(ZYDIS_INCLUDE_PATHS)
 
 # colors
 INFO	= \x1b[1;36m
