@@ -20,6 +20,7 @@ void help(char* program_name)
 	printf("Expected:\n");
 	printf("%s "UNDERLINE"COMMAND"RESET_UNDERLINE" ["UNDERLINE"ARGS"RESET_UNDERLINE"...]\n", program_name);
 	printf("%s -p "UNDERLINE"PID"RESET_UNDERLINE"\n", program_name);
+	printf("%s -h");
 }
 
 void exit_error(int error_code)
@@ -39,7 +40,7 @@ int main(int argc, char* argv[], char* envp[])
 	int tracee_pid;
 	if (!strcmp(argv[1], "-p"))
 	{
-		if (argc < 3)
+		if (argc != 3)
 		{
 			help(argv[0]);
 			return (0);
