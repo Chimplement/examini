@@ -39,6 +39,11 @@ int main(int argc, char* argv[], char* envp[])
 	int tracee_pid;
 	if (!strcmp(argv[1], "-p"))
 	{
+		if (argc < 3)
+		{
+			help(argv[0]);
+			return (0);
+		}
 		tracee_pid = atoi(argv[2]);
 		if (ptrace(PTRACE_ATTACH, tracee_pid, 0, 0) == -1)
 			exit_error(errno);
