@@ -17,10 +17,9 @@
 
 void help(char* program_name)
 {
-	printf("\
-Expected:\n\
-%s "UNDERLINE"PID"RESET_UNDERLINE"\n\
-", program_name);
+	printf("Expected:\n");
+	printf("%s "UNDERLINE"COMMAND"RESET_UNDERLINE" ["UNDERLINE"ARGS"RESET_UNDERLINE"...]\n", program_name);
+	printf("%s -p "UNDERLINE"PID"RESET_UNDERLINE"\n", program_name);
 }
 
 void exit_error(int error_code)
@@ -29,15 +28,32 @@ void exit_error(int error_code)
 	exit(error_code);
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[], char* envp[])
 {
-	if (argc != 2)
+	if (argc < 2)
 	{
 		help(argv[0]);
 		return (0);
 	}
 
-	int tracee_pid = atoi(argv[1]);
+	int tracee_pid;
+	if (!strcmp(argv[1], "-p"))
+	{
+		tracee_pid = atoi(argv[2]);
+	}
+	else
+	{
+		if (access(argv[1], X_OK) == -1)
+			exit_error(errno);
+		tracee_pid = fork();
+		if (tracee_pid == -1)
+			exit_error(errno);
+		if (tracee_pid == 0)
+		{
+			execve(argv[1], argv + 1, envp);
+			exit_error(errno);
+		}
+	}
 
 	if (ptrace(PTRACE_ATTACH, tracee_pid, 0, 0) == -1)
 		exit_error(errno);
@@ -72,7 +88,6 @@ int main(int argc, char* argv[])
 			printf("%s\n", instruction.text); 
 		}
 	}
-	if (ptrace(PTRACE_DETACH, tracee_pid, 0, 0) == -1)
-		exit_error(errno);
+	(void)ptrace(PTRACE_DETACH, tracee_pid, 0, 0);
 	return (0);
 }
