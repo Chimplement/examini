@@ -1,0 +1,4 @@
+[submodule "zydis"]
+	path = zydis
+	url = https://github.com/zyantific/zydis.git
+	branch = maintenance/v4
