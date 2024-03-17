@@ -40,6 +40,8 @@ int main(int argc, char* argv[], char* envp[])
 	if (!strcmp(argv[1], "-p"))
 	{
 		tracee_pid = atoi(argv[2]);
+		if (ptrace(PTRACE_ATTACH, tracee_pid, 0, 0) == -1)
+			exit_error(errno);
 	}
 	else
 	{
@@ -50,13 +52,12 @@ int main(int argc, char* argv[], char* envp[])
 			exit_error(errno);
 		if (tracee_pid == 0)
 		{
+			if (ptrace(PTRACE_TRACEME, 0, 0, 0) == -1)
+				exit_error(errno);
 			execve(argv[1], argv + 1, envp);
 			exit_error(errno);
 		}
 	}
-
-	if (ptrace(PTRACE_ATTACH, tracee_pid, 0, 0) == -1)
-		exit_error(errno);
 	
 	struct user_regs_struct			regs;
 	long							ip_long;
