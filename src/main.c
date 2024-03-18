@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+
 #include <errno.h>
 #include <string.h>
 
@@ -49,8 +51,6 @@ int main(int argc, char* argv[], char* envp[])
 	}
 	else
 	{
-		if (access(argv[1], X_OK) == -1)
-			exit_error(errno);
 		tracee_pid = fork();
 		if (tracee_pid == -1)
 			exit_error(errno);
@@ -58,7 +58,7 @@ int main(int argc, char* argv[], char* envp[])
 		{
 			if (ptrace(PTRACE_TRACEME, 0, 0, 0) == -1)
 				exit_error(errno);
-			execve(argv[1], argv + 1, envp);
+			execvpe(argv[1], argv + 1, envp);
 			exit_error(errno);
 		}
 	}
