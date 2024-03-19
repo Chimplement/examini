@@ -2,7 +2,7 @@
 Examini is a small debugging tool for examining the machine code ran by a linux process.
 
 ## Features
-...
+Currently examini allows the user to either start a process as a child or to trace an external process by passing its pid.
 
 ## Using
 Below is an example of using examini:
@@ -30,5 +30,10 @@ cd examini
 make
 ```
 
+## Why
+I originally made this tool because I was experimenting with the ptrace syscall on Unix. At that time I just learned assembly so I was interested in looking at the instructions other programs execute, which is how this tool came to be.
+
 ## Future
-...
+Here are couple of features I might add in the near future:
+- single stepping
+- monitoring registers
