@@ -20,7 +20,7 @@
 
 void exit_error(int error_code)
 {
-	printf(BOLD RED"Error:"RESET_BOLD WHITE" %s\n", strerror(error_code));
+	fprintf(stderr, BOLD RED"Error:"RESET_BOLD WHITE" %s\n", strerror(error_code));
 	exit(error_code);
 }
 
@@ -82,7 +82,7 @@ int	print_instruction(ZyanU8 instruction_buffer[sizeof(long)])
 
 	if (ZYAN_FAILED(ZydisDisassembleIntel(ZYDIS_MACHINE_MODE_LONG_64, 0, instruction_buffer, sizeof(long), &instruction)))
 		return (-1);
-	printf("%s\n", instruction.text);
+	fprintf(stderr, "%s\n", instruction.text);
 	return (0);
 }
 
