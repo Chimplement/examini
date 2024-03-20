@@ -38,4 +38,4 @@ I originally made this tool because I was experimenting with the ptrace syscall 
 ## Future
 Here are couple of features I might add in the near future:
 - monitoring registers
-- changing registers
+- modifying registers
