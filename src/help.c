@@ -1,6 +1,14 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "ansi.h"
+
+void exit_error(int error_code)
+{
+	fprintf(stderr, BOLD RED"Error:"RESET_BOLD WHITE" %s\n", strerror(error_code));
+	exit(error_code);
+}
 
 void help(char* program_name)
 {
