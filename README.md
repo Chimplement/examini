@@ -2,7 +2,7 @@
 Examini is a small debugging tool for examining the machine code ran by a linux process.
 
 ## Features
-Currently Examini allows the user to either start a process as a child or to trace an external process by passing its pid. It then shows a disassembled assembly code in the terminal, this can be done either automatically or step by step.
+Currently Examini allows the user to either start a process as a child or to trace an external process by passing its pid. It then shows a disassembled assembly code in the terminal, this can be done either continuously or step by step.
 
 As of now Examini only supports 64 bit machine code.
 
