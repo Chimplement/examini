@@ -24,20 +24,10 @@ void exit_error(int error_code)
 	exit(error_code);
 }
 
-int main(int argc, char* argv[], char* envp[])
+pid_t get_tracee(int argc, char* argv[], char* envp[])
 {
-	if (argc < 2)
-	{
-		help(argv[0]);
-		return (0);
-	}
-
 	pid_t tracee;
-	if (!strcmp(argv[1], "-h"))
-	{
-		expanded_help(argv[0]);
-		return (0);
-	}
+
 	if (!strcmp(argv[1], "-p"))
 	{
 		if (argc != 3)
@@ -62,6 +52,25 @@ int main(int argc, char* argv[], char* envp[])
 			exit_error(errno);
 		}
 	}
+	return (tracee);
+}
+
+int main(int argc, char* argv[], char* envp[])
+{
+	pid_t tracee;
+
+	if (argc < 2)
+	{
+		help(argv[0]);
+		return (0);
+	}
+	if (!strcmp(argv[1], "-h"))
+	{
+		expanded_help(argv[0]);
+		return (0);
+	}
+
+	tracee = get_tracee(argc, argv, envp);
 	
 	struct user_regs_struct			regs;
 	long							ip_long;
