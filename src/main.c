@@ -58,6 +58,7 @@ pid_t get_tracee(int argc, char* argv[], char* envp[])
 int main(int argc, char* argv[], char* envp[])
 {
 	pid_t tracee;
+	int   status;
 
 	if (argc < 2)
 	{
@@ -78,11 +79,14 @@ int main(int argc, char* argv[], char* envp[])
 	ZydisDisassembledInstruction	instruction; 
 	while (true)
 	{
-		if (waitpid(tracee, NULL, 0) == -1)
+		if (waitpid(tracee, &status, 0) == -1)
+			exit_error(errno);
+
+		if (WIFEXITED(status))
 			break;
 
 		if (ptrace(PTRACE_GETREGS, tracee, 0, &regs) == -1)
-			break;
+			exit_error(errno);
 
 		errno = 0;
 		ip_long = ptrace(PTRACE_PEEKTEXT, tracee, regs.rip, 0);
