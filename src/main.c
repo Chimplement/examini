@@ -28,27 +28,26 @@ pid_t get_tracee(int argc, char* argv[], char* envp[])
 {
 	pid_t tracee;
 
-	if (!strcmp(argv[1], "-p"))
+	if (!strcmp(argv[0], "-p"))
 	{
 		if (argc != 3)
 		{
-			help(argv[0]);
-			return (0);
+			return (-2);
 		}
-		tracee = atoi(argv[2]);
+		tracee = atoi(argv[1]);
 		if (ptrace(PTRACE_ATTACH, tracee, 0, 0) == -1)
-			exit_error(errno);
+			return (-1);
 	}
 	else
 	{
 		tracee = fork();
 		if (tracee == -1)
-			exit_error(errno);
+			return (-1);
 		if (tracee == 0)
 		{
 			if (ptrace(PTRACE_TRACEME, 0, 0, 0) == -1)
 				exit_error(errno);
-			execvpe(argv[1], argv + 1, envp);
+			execvpe(argv[0], argv + 1, envp);
 			exit_error(errno);
 		}
 	}
@@ -82,8 +81,17 @@ int	print_instruction(ZyanU8 instruction_buffer[sizeof(long)])
 
 	if (ZYAN_FAILED(ZydisDisassembleIntel(ZYDIS_MACHINE_MODE_LONG_64, 0, instruction_buffer, sizeof(long), &instruction)))
 		return (-1);
-	fprintf(stderr, "%s\n", instruction.text);
+	fprintf(stderr, "%s", instruction.text);
 	return (0);
+}
+
+void	wait_enter(void)
+{
+	int c;
+
+	c = getchar();
+	while(c != EOF && c != '\n')
+		c = getchar();
 }
 
 int main(int argc, char* argv[], char* envp[])
@@ -92,6 +100,8 @@ int main(int argc, char* argv[], char* envp[])
 	int           status;
 	unsigned long ip;
 	ZyanU8        instruction_buffer[sizeof(long)]; 
+	bool          single_step;
+	int           arg_offset;
 
 	if (argc < 2)
 	{
@@ -104,7 +114,22 @@ int main(int argc, char* argv[], char* envp[])
 		return (0);
 	}
 
-	tracee = get_tracee(argc, argv, envp);
+	arg_offset = 1;
+	single_step = false;
+	if (!strcmp(argv[1], "-s"))
+	{
+		arg_offset += 1;
+		single_step = true;
+	}
+
+	tracee = get_tracee(argc - arg_offset, argv + arg_offset, envp);
+	if (tracee == -1)
+		exit_error(errno);
+	if (tracee == -2)
+	{
+		help(argv[0]);
+		return (0);
+	}
 	
 	while (true)
 	{
@@ -122,6 +147,16 @@ int main(int argc, char* argv[], char* envp[])
 			exit_error(errno);
 		
 		(void)print_instruction(instruction_buffer);
+
+		if (single_step)
+		{
+			fflush(stderr);
+			wait_enter();
+		}
+		else
+		{
+			fprintf(stderr, "\n");
+		}
 
 		if (ptrace(PTRACE_SINGLESTEP, tracee, 0, 0) == -1)
 			exit_error(errno);

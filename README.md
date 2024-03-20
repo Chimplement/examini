@@ -37,5 +37,5 @@ I originally made this tool because I was experimenting with the ptrace syscall 
 
 ## Future
 Here are couple of features I might add in the near future:
-- single stepping
 - monitoring registers
+- changing registers
