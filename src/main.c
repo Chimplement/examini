@@ -55,7 +55,16 @@ pid_t get_tracee(int argc, char* argv[], char* envp[])
 	return (tracee);
 }
 
-int read_instruction(pid_t tracee, long long ip, ZyanU8 instruction_buffer[sizeof(long)])
+unsigned long get_ip(pid_t tracee)
+{
+	struct user_regs_struct regs;
+
+	if (ptrace(PTRACE_GETREGS, tracee, 0, &regs) == -1)
+		return (0);
+	return (regs.rip);
+}
+
+int read_instruction(pid_t tracee, unsigned long ip, ZyanU8 instruction_buffer[sizeof(long)])
 {
 	long    instruction_long;
 
@@ -85,21 +94,22 @@ int main(int argc, char* argv[], char* envp[])
 
 	tracee = get_tracee(argc, argv, envp);
 	
-	struct user_regs_struct			regs;
+	unsigned long					ip;
 	ZyanU8							instruction_buffer[sizeof(long)];
 	ZydisDisassembledInstruction	instruction; 
 	while (true)
 	{
 		if (waitpid(tracee, &status, 0) == -1)
 			exit_error(errno);
-
 		if (WIFEXITED(status))
 			break;
 
-		if (ptrace(PTRACE_GETREGS, tracee, 0, &regs) == -1)
+		errno = 0;
+		ip = get_ip(tracee);
+		if (errno != 0)
 			exit_error(errno);
 
-		if (read_instruction(tracee, regs.rip, instruction_buffer) == -1)
+		if (read_instruction(tracee, ip, instruction_buffer) == -1)
 			exit_error(errno);
 		
 		if (ZYAN_SUCCESS(ZydisDisassembleIntel(ZYDIS_MACHINE_MODE_LONG_64, 0, 
