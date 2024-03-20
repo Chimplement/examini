@@ -85,13 +85,18 @@ int	print_instruction(ZyanU8 instruction_buffer[sizeof(long)])
 	return (0);
 }
 
-void	wait_enter(void)
+int	wait_enter(void)
 {
 	int c;
 
 	c = getchar();
-	while(c != EOF && c != '\n')
+	while(c != '\n')
+	{
+		if (c == EOF)
+			return (-1);
 		c = getchar();
+	}
+	return (0);
 }
 
 int main(int argc, char* argv[], char* envp[])
@@ -151,7 +156,8 @@ int main(int argc, char* argv[], char* envp[])
 		if (single_step)
 		{
 			fflush(stderr);
-			wait_enter();
+			if (wait_enter() == -1)
+				break;
 		}
 		else
 		{
