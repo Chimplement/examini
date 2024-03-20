@@ -79,6 +79,7 @@ int read_instruction(pid_t tracee, unsigned long ip, ZyanU8 instruction_buffer[s
 int	print_instruction(ZyanU8 instruction_buffer[sizeof(long)])
 {
 	ZydisDisassembledInstruction instruction;
+
 	if (ZYAN_FAILED(ZydisDisassembleIntel(ZYDIS_MACHINE_MODE_LONG_64, 0, instruction_buffer, sizeof(long), &instruction)))
 		return (-1);
 	printf("%s\n", instruction.text);
@@ -87,8 +88,10 @@ int	print_instruction(ZyanU8 instruction_buffer[sizeof(long)])
 
 int main(int argc, char* argv[], char* envp[])
 {
-	pid_t tracee;
-	int   status;
+	pid_t         tracee;
+	int           status;
+	unsigned long ip;
+	ZyanU8        instruction_buffer[sizeof(long)]; 
 
 	if (argc < 2)
 	{
@@ -103,8 +106,6 @@ int main(int argc, char* argv[], char* envp[])
 
 	tracee = get_tracee(argc, argv, envp);
 	
-	unsigned long					ip;
-	ZyanU8							instruction_buffer[sizeof(long)]; 
 	while (true)
 	{
 		if (waitpid(tracee, &status, 0) == -1)
@@ -126,5 +127,5 @@ int main(int argc, char* argv[], char* envp[])
 			exit_error(errno);
 	}
 	(void)ptrace(PTRACE_DETACH, tracee, 0, 0);
-	return (0);
+	return (WEXITSTATUS(status));
 }
