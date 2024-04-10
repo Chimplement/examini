@@ -35,6 +35,8 @@ make
 ## Why
 I originally made this tool because I was experimenting with the ptrace syscall on Unix. At that time I just learned assembly so I was interested in looking at the instructions other programs execute, which is how this tool came to be.
 
+Examini uses [Zydis](https://github.com/zyantific/zydis/tree/master) to disassemble the machine code, because this project was more about ptrace than making a disassembler.
+
 ## Future
 Here are couple of features I might add in the near future:
 - monitoring registers
